@@ -70,7 +70,7 @@
   (GET "/secured" request
     (friend/authorize #{::user}
       (do
-        (println (str "Request insice secured route: " request))
+        (println (str "Request inside secured route: " request))
         (resource-response "secured.html" {:root "public"}))))
   (route/resources "/"))
 
