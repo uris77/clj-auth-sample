@@ -62,7 +62,7 @@
 
 (defn auth-middleware [handler]
   (fn [request]
-    (println (str "Request in auth middleware: " request))
+    (println (str "\n\nRequest in auth middleware: " request))
     (handler request)))
 
 (defroutes app-routes
@@ -70,22 +70,24 @@
   (GET "/secured" request
     (friend/authorize #{::user}
       (do
-        (println (str "Request inside secured route: " request))
+        (println (str "\n\nRequest inside secured route: " request))
         (resource-response "secured.html" {:root "public"}))))
   (route/resources "/"))
 
 (def app
+  (sessions/wrap-session
   (routes
   (-> app-routes
+    auth-middleware
     (friend/authenticate
        {:allow-anon? true
           :workflows [(oauth2/workflow
                    {:client-config client-config
                     :uri-config uri-config
                     :credential-fn credential-fn})]})
-      sessions/wrap-session
       handler/site
-      auth-middleware )))
+       )
+      )))
 
 (defn -main []
   (ring/run-jetty #'app {:port 3000 :join? false}))
